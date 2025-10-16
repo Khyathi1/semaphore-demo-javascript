@@ -1,0 +1,31 @@
+version: v1.0
+name: Build and Test with Docker
+
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2204
+
+blocks:
+  - name: Setup and Test
+    task:
+      env_vars:
+        - name: POSTGRES_DB
+          value: mydb
+        - name: POSTGRES_USER
+          value: user
+        - name: POSTGRES_PASSWORD
+          value: password
+        - name: POSTGRES_PORT
+          value: "5432"
+      jobs:
+        - name: Run tests with Docker
+          commands:
+            - checkout
+            # Install correct Node version
+            - sem-version node 16.16.0
+            - npm ci
+            # Start your Postgres + Adminer containers
+            - docker-compose up -d
+            # Run tests or start your app
+            - npm test
